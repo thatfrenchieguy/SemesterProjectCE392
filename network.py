@@ -6,6 +6,7 @@ from od import OD
 import sys
 import traceback
 import utils
+import math
 
 FRANK_WOLFE_STEPSIZE_PRECISION = 1e-4
 
@@ -140,11 +141,11 @@ class Network:
       between the true value, and the value returned by your method, is less than
       precision.
       """
-      
       GuessValue = .5
       step = .25
       iterations = 0
       while True:
+          LastStep = step
           FWF = 0
           for l in self.link:
               linkDelta = targetFlows[l] - self.link[l].flow
@@ -162,17 +163,40 @@ class Network:
           if FWF < 0:
                GuessValue = GuessValue + step
                step = step/2
+          Delta = abs(step-LastStep)
           print(FWF)
           print(GuessValue)
-          if abs(FWF) < precision:
+          print(Delta)
+          if abs(Delta) < precision:
               break
-          iterations +=1
-          if iterations >= 500:
-              break
+#          iterations +=1
+#          if iterations >= 50:
+#              break
+
+      
 
       return GuessValue
       
+   def ACOHeuristic(self, timewall = 100, targetGap = 1e-6, numBatches =1000):
+       """
+       This method uses a heuristic to approximate user equilibrium. Arguments are as follows:
+           timewall--maximum amount of time the heuristic will run for
+           targetGap -- break condition based on AEC
+           numBatches -- number of batches to assign in
+#      """
       
+      ###assignment phase
+      for i in range(0,numBatches):
+          for od in self.ODpair:
+              operatingDemand = self.ODpair[od].demand
+              packet = operatingDemand*1/numBatches
+              ori = self.ODpair[od].origin
+              dest = self.ODpair[od].destination
+              (SPBL,SPC) = self.shortestPath()
+              LinksIn= []
+              while True:
+                  if
+              
 
    def userEquilibrium(self, stepSizeRule = 'MSA',
                           maxIterations = 10,
