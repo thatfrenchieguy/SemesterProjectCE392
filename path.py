@@ -4,7 +4,7 @@ class Path:
    attribute 'links', which is a tuple of link IDs.  Other attributes are as
    follows:
       network points to the parent Network class (needed for calculating costs)
-      flow is the number of vehicles using this path
+      flow is the number of vehicles using this pathgithub
       cost is the total cost of the path
    """
 

@@ -145,7 +145,7 @@ class Network:
       step = .25
       iterations = 0
       while True:
-          LastStep = step
+          LastStep = GuessValue
           FWF = 0
           for l in self.link:
               linkDelta = targetFlows[l] - self.link[l].flow
@@ -157,16 +157,18 @@ class Network:
               self.link[l].flow = SavedFlow
               contribution = TxHat*linkDelta
               FWF += contribution
-          if FWF > 0:
+          if FWF < 0:
                GuessValue = GuessValue- step
                step = step/2
-          if FWF < 0:
+          if FWF > 0:
                GuessValue = GuessValue + step
                step = step/2
-          Delta = abs(step-LastStep)
-          print(FWF)
-          print(GuessValue)
-          print(Delta)
+          Delta = abs(GuessValue-LastStep)
+#          print(FWF)
+#          print(GuessValue)
+#          print(Delta)
+#          print(GuessValue)
+#          print(FWF)
           if abs(Delta) < precision:
               break
 #          iterations +=1
@@ -177,7 +179,7 @@ class Network:
 
       return GuessValue
       
-   def ACOHeuristic(self, timewall = 100, targetGap = 1e-6, numBatches =1000):
+   def ACOHeuristic(self, timewall = 100, targetGap = 1e-6, numBatches =10):
        """
        This method uses a heuristic to approximate user equilibrium. Arguments are as follows:
            timewall--maximum amount of time the heuristic will run for
@@ -189,23 +191,31 @@ class Network:
        for i in range(0,numBatches):
           for od in self.ODpair:
               operatingDemand = self.ODpair[od].demand
-              packet = operatingDemand*1/numBatches
+              packet = operatingDemand/numBatches
               ori = self.ODpair[od].origin
               dest = self.ODpair[od].destination
-              (SPBL,SPC) = self.shortestPath()
-              SP = {}
-              curnode = self.ODpair[od].destination
-                  while curnode != self.ODpair[od].origin:
-                      SP[backlink[curnode]] += self.ODpair[OD].demand
-                      curnode = self.link[backlink[curnode]].tail
-              SP.flow += packet
-              SP.updateCost()
-       print(self.averageExcessCost)
+              (SPBL,SPC) = self.shortestPath(ori)
+              SP =dict()
+              curnode = dest
+              iteration = 0
+              while curnode != self.ODpair[od].origin:
+#                      print(SP)
+#                      print(curnode)
+#                      print(od)
+#                      print(SPBL)
+#                      print(SPBL[curnode])
+                      SP[iteration] = SPBL[curnode]
+                      
+                      curnode = self.link[SPBL[curnode]].tail
+              for l in SP:
+                self.link[SP[l]].flow += packet
+                self.link[SP[l]].updateCost()
+       print(self.averageExcessCost())
 
    def userEquilibrium(self, stepSizeRule = 'MSA',
                           maxIterations = 10,
                           targetGap = 1e-6, 
-                          gapFunction = relativeGap):
+                          gapFunction = relativeGap, FWgap = .00001):
       """
       This method uses the (link-based) convex combinations algorithm to solve
       for user equilibrium.  Arguments are the following:
@@ -233,7 +243,7 @@ class Network:
             break
          targetFlows = self.allOrNothing()
          if stepSizeRule == 'FW':
-            stepSize = self.FrankWolfeStepSize(targetFlows)
+            stepSize = self.FrankWolfeStepSize(targetFlows,FWgap)
          elif stepSizeRule == 'MSA':
             stepSize = 1 / (iteration + 1)
          else:
@@ -576,7 +586,7 @@ class Network:
                   self.node[int(data[1])] = Node(True if int(data[1]) <= self.numZones else False)
          
       except IOError:
-         print("\nError reading network file %s" % networkFile)
+#         print("\nError reading network file %s" % networkFile)
          traceback.print_exc(file=sys.stdout) 
 
    def readDemandFile(self, demandFileName):
@@ -637,7 +647,7 @@ class Network:
                   self.totalDemand += demand      
                                     
       except IOError:
-         print("\nError reading network file %s" % networkFile)
+#         print("\nError reading network file %s" % networkFile)
          traceback.print_exc(file=sys.stdout)       
             
    def validate(self):
