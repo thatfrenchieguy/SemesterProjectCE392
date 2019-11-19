@@ -186,17 +186,21 @@ class Network:
 #      """
       
       ###assignment phase
-      for i in range(0,numBatches):
+       for i in range(0,numBatches):
           for od in self.ODpair:
               operatingDemand = self.ODpair[od].demand
               packet = operatingDemand*1/numBatches
               ori = self.ODpair[od].origin
               dest = self.ODpair[od].destination
               (SPBL,SPC) = self.shortestPath()
-              LinksIn= []
-              while True:
-                  if
-              
+              SP = {}
+              curnode = self.ODpair[od].destination
+                  while curnode != self.ODpair[od].origin:
+                      SP[backlink[curnode]] += self.ODpair[OD].demand
+                      curnode = self.link[backlink[curnode]].tail
+              SP.flow += packet
+              SP.updateCost()
+       print(self.averageExcessCost)
 
    def userEquilibrium(self, stepSizeRule = 'MSA',
                           maxIterations = 10,
