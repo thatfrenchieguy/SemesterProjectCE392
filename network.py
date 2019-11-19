@@ -179,7 +179,7 @@ class Network:
 
       return GuessValue
       
-   def ACOHeuristic(self, timewall = 100, targetGap = 1e-6, numBatches =10):
+   def ACOHeuristic(self, timewall = 100, targetGap = 1e-6, numBatches =20):
        """
        This method uses a heuristic to approximate user equilibrium. Arguments are as follows:
            timewall--maximum amount of time the heuristic will run for
@@ -188,7 +188,7 @@ class Network:
 #      """
       
       ###assignment phase
-       for i in range(0,numBatches):
+       for i in range(0,numBatches+1):
           for od in self.ODpair:
               operatingDemand = self.ODpair[od].demand
               packet = operatingDemand/numBatches
@@ -205,7 +205,7 @@ class Network:
 #                      print(SPBL)
 #                      print(SPBL[curnode])
                       SP[iteration] = SPBL[curnode]
-                      
+                      iteration +=1
                       curnode = self.link[SPBL[curnode]].tail
               for l in SP:
                 self.link[SP[l]].flow += packet
