@@ -6,7 +6,8 @@ from od import OD
 import sys
 import traceback
 import utils
-import math
+import time
+
 
 FRANK_WOLFE_STEPSIZE_PRECISION = 1e-4
 
@@ -186,7 +187,8 @@ class Network:
            targetGap -- break condition based on AEC
            numBatches -- number of batches to assign in
 #      """
-      
+       t = time.time()
+
       ###assignment phase
        for i in range(0,numBatches+1):
           for od in self.ODpair:
@@ -211,11 +213,13 @@ class Network:
                 self.link[SP[l]].flow += packet
                 self.link[SP[l]].updateCost()
        print(self.averageExcessCost())
-
+       elapsed = time.time() - t
+       print(elapsed)
    def userEquilibrium(self, stepSizeRule = 'MSA',
                           maxIterations = 10,
                           targetGap = 1e-6, 
                           gapFunction = relativeGap, FWgap = .00001):
+      t = time.time()
       """
       This method uses the (link-based) convex combinations algorithm to solve
       for user equilibrium.  Arguments are the following:
@@ -229,6 +233,7 @@ class Network:
                           finishing this assignment, you should be able to
                           choose either relativeGap or averageExcessCost.
       """
+      c=1.5
       initialFlows = self.allOrNothing()
       for ij in self.link:
          self.link[ij].flow = initialFlows[ij]
@@ -245,11 +250,21 @@ class Network:
          if stepSizeRule == 'FW':
             stepSize = self.FrankWolfeStepSize(targetFlows,FWgap)
          elif stepSizeRule == 'MSA':
-            stepSize = 1 / (iteration + 1)
+            stepSize = 1 / (c*(iteration + 1))
          else:
             raise BadNetworkOperationException("Unknown step size rule " + str(stepSizeRule))
          self.shiftFlows(targetFlows, stepSize)
-            
+      elapsed = time.time() - t
+      print(elapsed)
+      TSTT = 0
+      for l in self.link:
+              if self.link[l].flow <0:
+                  print("what in tarnation?") #this really shouldn't happen, but the sheer number of leetcode problems I've been doing make me want to check against it anyway
+                  break
+              if self.link[l].flow >0:
+                  contribution = self.link[l].flow * self.link[l].cost
+                  TSTT += contribution
+      print(TSTT)
    def beckmannFunction(self):
       """
       This method evaluates the Beckmann function at the current link
