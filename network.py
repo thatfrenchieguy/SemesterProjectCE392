@@ -128,7 +128,7 @@ class Network:
           target = targetFlows[l]
           new = current *(1 - stepSize)+target*stepSize
           self.link[l].flow = new
-          self.link[l].updateCost
+          self.link[l].updateCost()
          
    def FrankWolfeStepSize(self, targetFlows, precision = FRANK_WOLFE_STEPSIZE_PRECISION):
       """
@@ -158,10 +158,10 @@ class Network:
               self.link[l].flow = SavedFlow
               contribution = TxHat*linkDelta
               FWF += contribution
-          if FWF < 0:
+          if FWF > 0:
                GuessValue = GuessValue- step
                step = step/2
-          if FWF > 0:
+          if FWF < 0:
                GuessValue = GuessValue + step
                step = step/2
           Delta = abs(GuessValue-LastStep)

@@ -11,4 +11,4 @@ net = network.Network(datapath+"SiouxFalls_net.txt",datapath+"SiouxFalls_trips.t
 #hot start
 net.ACOHeuristic()
 #FW, max iterations, AEC gap tolerance, AEC as choice of method, Frank Wolve precision
-net.userEquilibrium("FW", 20000, 1e-10, net.averageExcessCost,.000001)
+net.userEquilibrium("FW", 20000, 1e-4, net.averageExcessCost,.0000000001)
