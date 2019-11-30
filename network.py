@@ -181,7 +181,7 @@ class Network:
 
       return GuessValue
       
-   def ACOHeuristic(self, timewall = 100, targetGap = 1e-6, numBatches =20):
+   def ACOHeuristic(self, timewall = 100, targetGap = 1e-6, numBatches =500):
        """
        This method uses a heuristic to approximate user equilibrium. Arguments are as follows:
            timewall--maximum amount of time the heuristic will run for
