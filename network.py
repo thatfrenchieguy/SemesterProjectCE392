@@ -7,6 +7,7 @@ import sys
 import traceback
 import utils
 import time
+import csv
 
 
 FRANK_WOLFE_STEPSIZE_PRECISION = 1e-4
@@ -215,6 +216,12 @@ class Network:
        print(self.averageExcessCost())
        elapsed = time.time() - t
        print(elapsed)
+   def ACOWriteOut(self, filename = "ACOoutput.csv"):
+       with open(filename, 'w', newline='') as file:
+           writer = csv.writer(file)
+           for l in self.link:
+               writer.writerow([l,self.link[l].flow])
+
    def userEquilibrium(self, stepSizeRule = 'MSA',
                           maxIterations = 10,
                           targetGap = 1e-6, 
